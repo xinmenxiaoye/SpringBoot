@@ -1,0 +1,41 @@
+# 项目排除路径
+/springboot01/target/
+/springboot02/target/
+/springboot03/target/
+
+# IntelliJ IDEA Specific
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Maven Ignore
+target/
+
+# Gradle Ignore
+.gradle/
+**/build/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

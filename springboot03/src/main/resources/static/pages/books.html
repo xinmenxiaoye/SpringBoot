@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" rel="stylesheet">
+    <style>
+        .el-table .warning-row {
+            background: oldlace;
+        }
+
+        .el-table .success-row {
+            background: #f0f9eb;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <el-form :inline="true" :model="book" class="demo-form-inline">
+        <el-form-item>
+            <el-input v-model="book.name" placeholder="图书名称"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="dialogVisible = true">新增</el-button>
+        </el-form-item>
+    </el-form>
+
+    <el-row>
+        <el-button type="danger" plain @click="deleteByIds">批量删除</el-button>
+    </el-row>
+
+    <el-dialog
+            title="新增图书"
+            :visible.sync="dialogVisible"
+            width="30%">
+
+        <el-form ref="form" :model="book" label-width="80px">
+            <el-form-item label="类型">
+                <el-input v-model="book.type"></el-input>
+            </el-form-item>
+
+            <el-form-item label="书名">
+                <el-input v-model="book.name"></el-input>
+            </el-form-item>
+
+            <el-form-item label="介绍">
+                <el-input type="textarea" v-model="book.description"></el-input>
+            </el-form-item>
+
+            <el-form-item>
+                <el-button type="primary" @click="save()">提交</el-button>
+                <el-button @click="dialogVisible = false">取消</el-button>
+            </el-form-item>
+        </el-form>
+
+    </el-dialog>
+
+    <template>
+        <el-table
+                :data="tableData"
+                style="width: 100%"
+                :row-class-name="tableRowClassName"
+                @selection-change="handleSelectionChange">
+            <el-table-column
+                    type="selection"
+                    width="55">
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="id"
+                    label="编号"
+                    width="80"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="type"
+                    label="类型"
+                    width="180"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    label="书名"
+                    width="180"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="description"
+                    label="介绍">
+            </el-table-column>
+            <el-table-column
+                    label="操作">
+                <el-row>
+                    <el-button type="primary" icon="el-icon-edit" circle></el-button>
+                    <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                </el-row>
+            </el-table-column>
+        </el-table>
+    </template>
+
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="5"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="400">
+    </el-pagination>
+</div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.15.13/index.js"></script>
+
+<script>
+    new Vue({
+
+        el: '#app',
+        mounted() {
+            this.selectAll();
+        },
+
+        methods: {
+            selectAll() {
+                axios.get('/books').then((res) => {
+                    this.tableData = res.data;
+                })
+            },
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex === 1) {
+                    return 'warning-row';
+                } else if (rowIndex === 3) {
+                    return 'success-row';
+                }
+                return '';
+            },
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+                console.log(this.multipleSelection)
+            },
+            onSubmit() {
+                console.log(this.book)
+            },
+
+            // 添加书籍
+            save() {
+                // var _this = this;
+                // console.log("save method called");
+                // console.log("this.book:", this.book);
+                axios.post('/books', this.book).then((res) => {
+                    // console.log(res);
+                    this.dialogVisible = false;
+                    this.selectAll();
+                    this.$message({
+                        message: '恭喜你，添加成功！',
+                        type: 'success'
+                    });
+                })
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+            },
+            deleteByIds() {
+                this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    //用户点击确定按钮
+                    var ids = [];
+                    for (var i = 0; i < this.multipleSelection.length; i++) {
+                        ids.push(this.multipleSelection[i].id);
+                    }
+                    // console.log(ids);
+                    axios.delete('/books/batch', {
+                        data: ids
+                    }).then((res) => {
+                        this.selectAll();
+                        this.$message({
+                            message: '恭喜你，删除成功！',
+                            type: 'success'
+                        });
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+
+            }
+        },
+        data() {
+            return {
+                currentPage: 4,
+
+                dialogVisible: false,
+
+                book: {
+                    id: '',
+                    type: '',
+                    name: '',
+                    description: ''
+                },
+
+                multipleSelection: [],
+
+                tableData: [{
+                    id: 8,
+                    type: '魔幻现实主义',
+                    name: '百年孤独',
+                    description: '加西亚·马尔克斯的家族史诗。',
+                }, {
+                    id: 8,
+                    type: '魔幻现实主义',
+                    name: '百年孤独',
+                    description: '加西亚·马尔克斯的家族史诗。',
+                }, {
+                    id: 8,
+                    type: '魔幻现实主义',
+                    name: '百年孤独',
+                    description: '加西亚·马尔克斯的家族史诗。',
+                }, {
+                    id: 8,
+                    type: '魔幻现实主义',
+                    name: '百年孤独',
+                    description: '加西亚·马尔克斯的家族史诗。',
+                }]
+            }
+        }
+    })
+</script>
+
+</html>

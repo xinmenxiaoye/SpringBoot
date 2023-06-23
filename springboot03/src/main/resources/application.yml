@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://xinmenmysql.mysql.database.azure.com:3306/ssm_db?useSSL=true
+    username: xiaoye
+    password: XINMENxy&200208
+    type: com.alibaba.druid.pool.DruidDataSource

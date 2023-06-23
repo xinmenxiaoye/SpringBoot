@@ -8,23 +8,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class Springboot03ApplicationTests {
+
     @Autowired
     private BookDao bookDao;
 
 
-@Test
+    @Test
     void contextLoads() {
-    Book book=bookDao.getById(1);
-    System.out.println(book);
+        Book book = bookDao.getById(1);
+        System.out.println(book);
     }
 
     @Test
-    void testSave(){
-        Book book=new Book();
+    void testSave() {
+        Book book = new Book();
         book.setName("三国演义");
         book.setType("小说");
         book.setDescription("一个故事");
         bookDao.save(book);
     }
+
 
 }
